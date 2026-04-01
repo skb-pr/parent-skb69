@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบเครือข่ายผู้ปกครอง | @2026 สุขบท</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        .line-v { width: 2px; height: 10px; background-color: #e2e8f0; margin: 0 auto; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        @media print { .no-print { display: none !important; } }
+        .img-profile { object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08); background-color: #f1f5f9; }
+        
+        .card-pres { background-color: #fdf2f8; border: 2px solid #fce7f3; } 
+        .card-dir { background-color: #e0e7ff; border: 2px solid #c7d2fe; } 
+        .card-deputy { background-color: #e0f2fe; border: 2px solid #bae6fd; } 
+        .card-teacher { background-color: #fef9c3; border: 2px solid #fef08a; } 
+        .card-member { background-color: #f0fdf4; border: 2px solid #dcfce7; } 
+    </style>
+</head>
+<body class="pb-20">
+
+    <nav class="bg-[#1e3a8a] text-white p-4 sticky top-0 z-50 shadow-lg no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <button onclick="toggleSidebar()" class="p-2 active:bg-blue-800 rounded-lg transition">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+            <div class="text-center">
+                <h1 class="text-[10px] font-bold opacity-80 uppercase tracking-tighter">เครือข่ายผู้ปกครอง โรงเรียนชลบุรี "สุขบท"</h1>
+                <p id="navRoomText" class="text-[10px]">ม.1 ห้อง 1</p>
+            </div>
+            <div class="w-10"></div>
+        </div>
+    </nav>
+
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 hidden z-[60] backdrop-blur-sm"></div>
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[70] shadow-2xl transform -translate-x-full no-print">
+        <div class="p-6">
+            <h2 class="font-bold text-blue-900 mb-6 border-b pb-2 flex items-center gap-2">⚙️ เมนูจัดการ</h2>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">เลือกห้องเรียน</label>
+                    <select id="level" onchange="updateRooms()" class="w-full bg-slate-100 p-3 rounded-xl text-sm mt-1 outline-none font-medium"></select>
+                    <select id="room" onchange="setRoomText()" class="w-full bg-slate-100 p-3 rounded-xl text-sm mt-2 outline-none font-medium"></select>
+                </div>
+                <hr>
+                <div class="space-y-3">
+                    <button onclick="exportPDF()" class="w-full bg-blue-600 text-white p-4 rounded-2xl text-xs font-bold shadow-lg active:scale-95 transition">📄 บันทึกเป็น PDF</button>
+                    <button onclick="resetForm()" class="w-full bg-rose-50 text-rose-600 p-4 rounded-2xl text-xs font-bold border border-rose-100 active:scale-95 transition mt-8">ล้างข้อมูลทั้งหมด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main id="capture-area" class="max-w-md mx-auto px-6 pt-4 pb-6 bg-white shadow-sm sm:rounded-3xl min-h-[1120px] flex flex-col">
+        
+        <div class="text-center mb-4">
+            <h2 class="text-base font-bold text-[#1e3a8a] leading-tight">คณะกรรมการเครือข่ายผู้ปกครองระดับชั้นเรียน</h2>
+            <p id="displayRoom" class="text-xs text-slate-600 font-semibold mt-0.5">ม.1 ห้อง 1</p>
+            <p class="text-[9px] text-slate-400 mt-0.5 font-medium uppercase tracking-wider">งานกิจการนักเรียน | โรงเรียนชลบุรี "สุขบท"</p>
+        </div>
+
+        <div class="flex-grow space-y-0">
+            <div class="flex justify-center">
+                <div onclick="openEdit('ผู้อำนวยการ','img-dir','name-dir','tel-dir')" class="w-40 p-3 card-dir rounded-[2rem] text-center shadow-sm cursor-pointer active:scale-95 transition">
+                    <img id="img-dir" src="https://lh3.googleusercontent.com/d/186ZobDz2jtfB9IuAXYOLMwXJBfGn5WAI" class="w-20 h-20 rounded-full mx-auto mb-2 img-profile border-white shadow-sm">
+                    <p id="name-dir" class="text-[10px] font-bold text-slate-800">น.ส.พรพิศ อภิชิตพงศ์ชัย</p>
+                    <p id="tel-dir" class="text-[8px] text-blue-700 font-medium uppercase">Director</p>
+                </div>
+            </div>
+            <div class="line-v"></div>
+
+            <div class="flex justify-center">
+                <div onclick="openEdit('รองผู้อำนวยการ','img-dep','name-dep','tel-dep')" class="w-40 p-3 card-deputy rounded-[2rem] text-center shadow-sm cursor-pointer active:scale-95 transition">
+                    <img id="img-dep" src="https://lh3.googleusercontent.com/d/1fQ9T8bHJvk_OYd83eKomEbRh-kR5zpxx" class="w-20 h-20 rounded-full mx-auto mb-2 img-profile border-white shadow-sm">
+                    <p id="name-dep" class="text-[10px] font-bold text-slate-700">น.ส.ณัฐชยา รักษา</p>
+                    <p id="tel-dep" class="text-[8px] text-sky-700 font-medium uppercase">Deputy Director</p>
+                </div>
+            </div>
+            <div class="line-v"></div>
+
+            <div class="grid grid-cols-2 gap-4 px-4">
+                <div onclick="openEdit('ครูที่ปรึกษา 1','img-t1','name-t1','tel-t1')" class="card-teacher p-3 rounded-2xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-t1" src="https://placehold.co/100x100/eab308/white?text=Teacher" class="w-[76px] h-[76px] rounded-full mx-auto mb-1.5 img-profile border-white shadow-sm">
+                    <p id="name-t1" class="text-[9px] font-bold text-slate-800 leading-tight">ระบุชื่อครู 1</p>
+                    <p id="tel-t1" class="text-[8px] text-yellow-700">เบอร์โทรศัพท์</p>
+                </div>
+                <div onclick="openEdit('ครูที่ปรึกษา 2','img-t2','name-t2','tel-t2')" class="card-teacher p-3 rounded-2xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-t2" src="https://placehold.co/100x100/eab308/white?text=Teacher" class="w-[76px] h-[76px] rounded-full mx-auto mb-1.5 img-profile border-white shadow-sm">
+                    <p id="name-t2" class="text-[9px] font-bold text-slate-800 leading-tight">ระบุชื่อครู 2</p>
+                    <p id="tel-t2" class="text-[8px] text-yellow-700">เบอร์โทรศัพท์</p>
+                </div>
+            </div>
+            <div class="line-v"></div>
+
+            <div class="flex justify-center">
+                <div onclick="openEdit('ประธานเครือข่าย','img-pres','name-pres','tel-pres')" class="card-pres w-[70%] p-4 rounded-[2rem] text-center shadow-md active:scale-[0.98] transition cursor-pointer border-rose-100">
+                    <p class="text-[8px] uppercase tracking-[0.2em] font-bold text-rose-400 mb-1">President</p>
+                    <img id="img-pres" src="https://placehold.co/100x100/f43f5e/white?text=President" class="w-20 h-20 rounded-full mx-auto mb-2 border-4 border-white object-cover shadow-sm">
+                    <h3 id="name-pres" class="font-bold text-xs text-rose-900">ระบุชื่อประธานเครือข่าย</h3>
+                    <p id="tel-pres" class="text-[9px] text-rose-500 mt-0.5">08X-XXX-XXXX</p>
+                </div>
+            </div>
+            <div class="line-v"></div>
+
+            <div class="grid grid-cols-3 gap-2 px-2">
+                <div onclick="openEdit('กรรมการ','img-g6','name-g6','tel-g6')" class="card-member p-2.5 rounded-xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-g6" src="https://placehold.co/100x100/10b981/white?text=M6" class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile border-white shadow-sm">
+                    <p id="name-g6" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
+                    <p id="tel-g6" class="text-[7px] text-emerald-600">08X-XXX</p>
+                </div>
+                <div onclick="openEdit('กรรมการ 7','img-g7','name-g7','tel-g7')" class="card-member p-2.5 rounded-xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-g7" src="https://placehold.co/100x100/10b981/white?text=M7" class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile border-white shadow-sm">
+                    <p id="name-g7" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
+                    <p id="tel-g7" class="text-[7px] text-emerald-600">08X-XXX</p>
+                </div>
+                <div onclick="openEdit('กรรมการ 8','img-g8','name-g8','tel-g8')" class="card-member p-2.5 rounded-xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-g8" src="https://placehold.co/100x100/10b981/white?text=M8" class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile border-white shadow-sm">
+                    <p id="name-g8" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
+                    <p id="tel-g8" class="text-[7px] text-emerald-600">08X-XXX</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 px-12 mt-2">
+                <div onclick="openEdit('กรรมการ 9','img-g9','name-g9','tel-g9')" class="card-member p-2.5 rounded-xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-g9" src="https://placehold.co/100x100/10b981/white?text=M9" class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile border-white shadow-sm">
+                    <p id="name-g9" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
+                    <p id="tel-g9" class="text-[7px] text-emerald-600">08X-XXX</p>
+                </div>
+                <div onclick="openEdit('เลขานุการ 10','img-sec10','name-sec10','tel-sec10')" class="card-member p-2.5 rounded-xl text-center active:scale-95 transition cursor-pointer shadow-sm">
+                    <img id="img-sec10" src="https://placehold.co/100x100/10b981/white?text=Sec" class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile border-white shadow-sm">
+                    <p id="name-sec10" class="text-[8px] font-bold text-emerald-900 leading-tight">เลขานุการ</p>
+                    <p id="tel-sec10" class="text-[7px] text-emerald-600">08X-XXX</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-auto pt-6 pb-2 text-center border-t border-slate-50">
+            <p class="text-[8px] text-slate-400 font-medium tracking-widest uppercase">@2026 | www.skb.ac.th</p>
+        </footer>
+    </main>
+
+    <div id="modal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-end">
+        <div class="bg-white w-full rounded-t-[2.5rem] p-8">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <h3 id="m-title" class="font-bold text-center text-slate-800 mb-6 text-lg">แก้ไขข้อมูล</h3>
+            <div onclick="document.getElementById('f-input').click()" class="relative w-28 h-28 mx-auto mb-6 cursor-pointer">
+                <img id="m-preview" src="" class="w-full h-full rounded-full object-cover border-4 border-blue-50 shadow-lg">
+                <div class="absolute bottom-1 right-1 bg-blue-600 text-white p-2 rounded-full border-2 border-white text-[10px] shadow-md">📸</div>
+            </div>
+            <input type="file" id="f-input" class="hidden" accept="image/*" onchange="previewImg(this)">
+            <input type="text" id="i-name" class="w-full bg-slate-50 p-4 rounded-2xl mb-3 outline-none text-sm font-medium" placeholder="ระบุชื่อ-นามสกุล">
+            <input type="tel" id="i-tel" class="w-full bg-slate-50 p-4 rounded-2xl mb-8 outline-none text-sm font-medium" placeholder="ระบุเบอร์โทรศัพท์">
+            <div class="flex gap-3">
+                <button onclick="saveData()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">บันทึก</button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTarget = {};
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.toggle('hidden');
+        }
+
+        function updateRooms() {
+            const lv = document.getElementById('level');
+            if(!lv.options.length) ['ม.1','ม.2','ม.3','ม.4','ม.5','ม.6'].forEach((t, i) => lv.add(new Option(t, `ม.${i+1}`)));
+            const r = document.getElementById('room');
+            const count = ['ม.1','ม.2','ม.3'].includes(lv.options[lv.selectedIndex]?.text) ? 15 : 11;
+            r.innerHTML = '';
+            for(let i=1; i<=count; i++) r.add(new Option(`ห้อง ${i}`, i));
+            setRoomText();
+        }
+
+        function setRoomText() {
+            const levelText = document.getElementById('level').options[document.getElementById('level').selectedIndex].text;
+            const roomVal = document.getElementById('room').value;
+            const fullText = `${levelText} ห้อง ${roomVal}`;
+            document.getElementById('navRoomText').innerText = fullText;
+            document.getElementById('displayRoom').innerText = fullText;
+        }
+
+        function openEdit(title, imgId, nameId, telId) {
+            currentTarget = { imgId, nameId, telId };
+            document.getElementById('m-title').innerText = title;
+            document.getElementById('m-preview').src = document.getElementById(imgId).src;
+            document.getElementById('i-name').value = document.getElementById(nameId).innerText.includes('ระบุ') ? '' : document.getElementById(nameId).innerText;
+            const telText = document.getElementById(telId).innerText;
+            document.getElementById('i-tel').value = telText.match(/[0-9]/) ? telText : '';
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        function previewImg(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('m-preview').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveData() {
+            document.getElementById(currentTarget.imgId).src = document.getElementById('m-preview').src;
+            if(document.getElementById('i-name').value) document.getElementById(currentTarget.nameId).innerText = document.getElementById('i-name').value;
+            if(document.getElementById('i-tel').value) document.getElementById(currentTarget.telId).innerText = document.getElementById('i-tel').value;
+            closeModal();
+        }
+
+        function resetForm() { if(confirm("ล้างข้อมูลใช่หรือไม่?")) location.reload(); }
+
+        function exportPDF() {
+            const element = document.getElementById('capture-area');
+            const opt = {
+                margin: [5, 5, 5, 5],
+                filename: `Network_${document.getElementById('navRoomText').innerText}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        window.onload = updateRooms;
+    </script>
+</body>
+</html>
