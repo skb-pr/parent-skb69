@@ -2,194 +2,187 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบเครือข่ายผู้ปกครอง - สุขบท</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
-        .line-v { width: 2px; height: 10px; background-color: #e2e8f0; margin: 0 auto; }
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        @media print { .no-print { display: none !important; } }
-        .img-profile { object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.08); background-color: #f1f5f9; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; display: flex; flex-direction: column; align-items: center; margin: 0; }
         
-        /* สีกรอบและพื้นหลังแยกตามตำแหน่ง */
-        .card-pres { background-color: #fdf2f8; border: 2px solid #fce7f3; } 
-        .card-dir { background-color: #e0e7ff; border: 2px solid #c7d2fe; } 
-        .card-deputy { background-color: #e0f2fe; border: 2px solid #bae6fd; } 
-        .card-teacher { background-color: #fef9c3; border: 2px solid #fef08a; } 
-        .card-member { background-color: #f0fdf4; border: 2px solid #dcfce7; } 
+        /* บังคับขนาด A4 มาตรฐาน (96 DPI) */
+        #capture-area { 
+            width: 794px; height: 1123px; 
+            background-color: white; padding: 60px 50px; 
+            display: flex; flex-direction: column; justify-content: space-between; 
+            position: relative; box-sizing: border-box; flex-shrink: 0;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        .line-v { width: 2px; height: 15px; background-color: #cbd5e1; margin: 0 auto; }
+        .img-profile { object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #f8fafc; }
+        
+        /* การกำหนดสีแต่ละตำแหน่ง */
+        .card-dir, .card-deputy { background-color: #f8fafc; border: 1px solid #e2e8f0; }
+        .card-teacher { background-color: #fefce8; border: 1px solid #fef9c3; } 
+        .card-pres { background-color: #fff1f2; border: 1px solid #fecdd3; } 
+        .card-member { background-color: #f0fdf4; border: 1px solid #dcfce7; } 
 
         .icon-human {
-            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzk0YTMiPjxwYXRoIGQ9Ik0xMiAxMmE1IDUgMCAxIDEgMC0xMDUgNSAwIDAgMSAwIDEwem0wIDJhNy41IDcuNSAwIDAgMC03LjUgNy41IDAuNS41IDAgMCAwIC41LjVoMTRhLjUuNSAwIDAgMCAuNS0uNUE3LjUgNy41IDAgMCAwIDEyIDE0eiIvPjwvc3ZnPg==");
-            background-position: center; background-repeat: no-repeat; background-size: 60%;
+            background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzk0YTMiPjxwYXRoIGQ9Ik0xMiAxMmE1IDUgMCAxIDEgMC0xMDUgNSAwIDAgMSAwIDEwem0wIDJhNy41IDcuNSAwIDAgMC03LjUgNy41IDAuNS41IDAgMCAwIDEyIDcuNUE3LjUgNy41IDAgMCAwIDEyIDE0eiIvPjwvc3ZnPg==");
+            background-position: center; background-repeat: no-repeat; background-size: 50%;
+        }
+
+        /* สำหรับหน้าจอปกติให้ย่อส่วนลง */
+        @media (max-width: 850px) {
+            #capture-area { transform: scale(0.42); transform-origin: top center; margin-bottom: -600px; }
         }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <nav class="bg-[#1e3a8a] text-white p-4 sticky top-0 z-50 shadow-lg no-print">
+    <nav class="w-full bg-[#1e3a8a] text-white p-4 sticky top-0 z-50 shadow-lg mb-5">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <button onclick="toggleSidebar()" class="p-2 active:bg-blue-800 rounded-lg transition">
+            <button onclick="toggleSidebar()" class="p-2 active:bg-blue-800 rounded-lg transition-colors">
                 <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <div class="text-center flex items-center justify-center gap-2">
-                <img src="https://lh3.googleusercontent.com/d/1I8lQCEAjuXdE_rGYvsuNd5njLyAcwhGz" class="w-8 h-8 rounded-full border border-white bg-white" />
-                <div>
-                    <h1 class="text-[9px] font-bold opacity-90 uppercase tracking-tighter leading-none">เครือข่ายผู้ปกครอง โรงเรียนชลบุรี "สุขบท" | งานกิจการนักเรียน</h1>
-                    <p id="navRoomText" class="text-[10px] mt-1 text-blue-200">มัธยมศึกษาปีที่ 1 ห้อง 1</p>
-                </div>
+            <div class="flex items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/d/1I8lQCEAjuXdE_rGYvsuNd5njLyAcwhGz" class="w-9 h-9 rounded-full border-2 border-white bg-white">
+                <p id="navRoomText" class="text-sm font-bold">ระบบจัดการเครือข่ายผู้ปกครอง</p>
             </div>
             <div class="w-10"></div>
         </div>
     </nav>
 
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 hidden z-[60] backdrop-blur-sm"></div>
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[70] shadow-2xl transform -translate-x-full no-print">
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[70] shadow-2xl transform -translate-x-full transition-transform duration-300">
         <div class="p-6">
-            <h2 class="font-bold text-blue-900 mb-6 border-b pb-2 flex items-center gap-2">⚙️ เมนูจัดการ</h2>
-            <div class="space-y-5">
+            <h2 class="font-bold text-blue-900 mb-6 border-b pb-2 flex items-center gap-2">⚙️ เมนูควบคุม</h2>
+            <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">เลือกห้องเรียน</label>
-                    <select id="level" onchange="updateRooms()" class="w-full bg-slate-100 p-3 rounded-xl text-sm mt-1 outline-none font-medium"></select>
-                    <select id="room" onchange="setRoomText()" class="w-full bg-slate-100 p-3 rounded-xl text-sm mt-2 outline-none font-medium"></select>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ระบุชั้นและห้องเรียน</label>
+                    <select id="level" onchange="updateRooms()" class="w-full bg-slate-50 p-3 rounded-xl mt-1 border border-slate-200 outline-none text-sm font-medium"></select>
+                    <select id="room" onchange="setRoomText()" class="w-full bg-slate-50 p-3 rounded-xl mt-2 border border-slate-200 outline-none text-sm font-medium"></select>
                 </div>
-                <hr class="border-slate-100">
-                <div class="space-y-3">
-                    <button onclick="saveAllToCloud()" class="w-full bg-emerald-600 text-white p-4 rounded-2xl text-xs font-bold shadow-lg active:scale-95 transition">💾 บันทึกข้อมูลลง Google Sheet</button>
-                    <button onclick="exportPDF()" class="w-full bg-blue-600 text-white p-4 rounded-2xl text-xs font-bold shadow-lg active:scale-95 transition">บันทึกเป็นไฟล์ PDF (A4)</button>
-                    <button onclick="resetForm()" class="w-full bg-rose-50 text-rose-600 p-4 rounded-2xl text-[10px] font-bold border border-rose-100 active:scale-95 transition mt-8">ล้างข้อมูล/เริ่มใหม่</button>
-                </div>
+                
+                <hr class="my-6">
+                
+                <button onclick="exportToJpgCloud()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white p-4 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-200 transition-all active:scale-95">
+                    🖼️ บันทึกข้อมูล (JPG) ลง Drive
+                </button>
+                
+                <button onclick="resetForm()" class="w-full bg-slate-100 text-slate-400 p-3 rounded-2xl text-xs font-bold hover:bg-red-50 hover:text-red-500 transition-all">
+                    ล้างข้อมูลและเริ่มใหม่
+                </button>
             </div>
         </div>
     </div>
 
-    <main id="capture-area" class="max-w-md mx-auto px-6 pt-6 pb-6 bg-white shadow-sm sm:rounded-3xl min-h-[1100px] flex flex-col">
-        
-        <div class="text-center mb-6">
-            <h2 class="text-base font-bold text-[#1e3a8a] leading-tight">คณะกรรมการเครือข่ายผู้ปกครองระดับชั้น</h2>
-            <p id="displayRoom" class="text-sm text-slate-600 font-semibold mt-1">มัธยมศึกษาปีที่ 1 ห้อง 1</p>
-            <p class="text-[9px] text-slate-400 mt-0.5 font-medium uppercase tracking-wider">โรงเรียนชลบุรี "สุขบท"</p>
+    <main id="capture-area">
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-[#1e3a8a] tracking-tight">คณะกรรมการเครือข่ายผู้ปกครองระดับชั้น</h2>
+            <p id="displayRoom" class="text-lg text-slate-600 font-semibold mt-1">มัธยมศึกษาปีที่ 1 ห้อง 1</p>
+            <p class="text-[10px] text-slate-400 mt-1 tracking-[0.3em] uppercase">โรงเรียนชลบุรี "สุขบท"</p>
         </div>
 
-        <div class="flex-grow space-y-0">
+        <div class="flex-grow flex flex-col justify-around py-4">
             <div class="flex justify-center">
-                <div data-id="ผอ" onclick="openEdit('ผู้อำนวยการ','img-dir','name-dir','pos-dir')" class="w-44 p-3 card-dir rounded-[2rem] text-center shadow-sm cursor-pointer active:scale-95 transition editable-card">
+                <div onclick="openEdit('ผู้อำนวยการ','img-dir','name-dir','pos-dir')" class="w-48 p-4 card-dir rounded-[2rem] text-center cursor-pointer shadow-sm">
                     <img id="img-dir" src="https://lh3.googleusercontent.com/d/186ZobDz2jtfB9IuAXYOLMwXJBfGn5WAI" class="w-20 h-20 rounded-full mx-auto mb-2 img-profile">
-                    <p id="name-dir" class="text-[10px] font-bold text-slate-800">นางสาวพรพิศ อภิชิตพงศ์ชัย</p>
-                    <p id="pos-dir" class="text-[8px] text-blue-700 font-bold mt-1 leading-tight">ผู้อำนวยการโรงเรียนชลบุรี "สุขบท"</p>
+                    <p id="name-dir" class="text-[11px] font-bold text-slate-800">ชื่อผู้อำนวยการ</p>
+                    <p id="pos-dir" class="text-[9px] text-blue-700 font-bold">ผู้อำนวยการโรงเรียน</p>
                 </div>
             </div>
-            <div class="line-v"></div>
 
             <div class="flex justify-center">
-                <div data-id="รองผอ" onclick="openEdit('รองผู้อำนวยการ','img-dep','name-dep','pos-dep')" class="w-44 p-3 card-deputy rounded-[2rem] text-center shadow-sm cursor-pointer active:scale-95 transition editable-card">
+                <div onclick="openEdit('รองผู้อำนวยการ','img-dep','name-dep','pos-dep')" class="w-48 p-4 card-deputy rounded-[2rem] text-center cursor-pointer shadow-sm">
                     <img id="img-dep" src="https://lh3.googleusercontent.com/d/1fQ9T8bHJvk_OYd83eKomEbRh-kR5zpxx" class="w-20 h-20 rounded-full mx-auto mb-2 img-profile">
-                    <p id="name-dep" class="text-[10px] font-bold text-slate-700">นางสาวณัฐชยา รักษา</p>
-                    <p id="pos-dep" class="text-[8px] text-sky-700 font-bold mt-1 leading-tight">รองผู้อำนวยการโรงเรียนชลบุรี "สุขบท"<br>กลุ่มกิจการนักเรียน</p>
+                    <p id="name-dep" class="text-[11px] font-bold text-slate-700">ชื่อรองผู้อำนวยการ</p>
+                    <p id="pos-dep" class="text-[9px] text-sky-700 font-bold uppercase">Deputy Director</p>
                 </div>
             </div>
-            <div class="line-v"></div>
 
-            <div class="grid grid-cols-2 gap-4 px-4">
-                <div data-id="ครู1" onclick="openEdit('ครูที่ปรึกษา','img-t1','name-t1','tel-t1')" class="card-teacher p-3 rounded-2xl text-center cursor-pointer shadow-sm editable-card">
-                    <div class="w-[76px] h-[76px] rounded-full mx-auto mb-1.5 img-profile icon-human overflow-hidden">
-                        <img id="img-t1" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-t1" class="text-[9px] font-bold text-slate-800 leading-tight">ระบุชื่อครูที่ปรึกษา</p>
-                    <p id="tel-t1" class="text-[8px] text-yellow-700 font-medium">เบอร์โทรศัพท์</p>
+            <div class="grid grid-cols-2 gap-12 px-24">
+                <div onclick="openEdit('ครูที่ปรึกษา','img-t1','name-t1','tel-t1')" class="card-teacher p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-t1" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-t1" class="text-[10px] font-bold">ชื่อครูที่ปรึกษา</p>
+                    <p id="tel-t1" class="text-[9px] text-yellow-700">เบอร์โทรศัพท์</p>
                 </div>
-                <div data-id="ครู2" onclick="openEdit('ครูที่ปรึกษา','img-t2','name-t2','tel-t2')" class="card-teacher p-3 rounded-2xl text-center cursor-pointer shadow-sm editable-card">
-                    <div class="w-[76px] h-[76px] rounded-full mx-auto mb-1.5 img-profile icon-human overflow-hidden">
-                        <img id="img-t2" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-t2" class="text-[9px] font-bold text-slate-800 leading-tight">ระบุชื่อครูที่ปรึกษา</p>
-                    <p id="tel-t2" class="text-[8px] text-yellow-700 font-medium">เบอร์โทรศัพท์</p>
+                <div onclick="openEdit('ครูที่ปรึกษา','img-t2','name-t2','tel-t2')" class="card-teacher p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-t2" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-t2" class="text-[10px] font-bold">ชื่อครูที่ปรึกษา</p>
+                    <p id="tel-t2" class="text-[9px] text-yellow-700">เบอร์โทรศัพท์</p>
                 </div>
             </div>
-            <div class="line-v"></div>
 
             <div class="flex justify-center">
-                <div data-id="ประธาน" onclick="openEdit('ประธานเครือข่าย','img-pres','name-pres','tel-pres')" class="card-pres w-[70%] p-4 rounded-[2rem] text-center shadow-md cursor-pointer editable-card">
-                    <div class="w-20 h-20 rounded-full mx-auto mb-2 border-4 border-white icon-human overflow-hidden shadow-sm">
-                        <img id="img-pres" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <h3 id="name-pres" class="font-bold text-xs text-rose-900 leading-tight">ระบุชื่อประธานเครือข่าย</h3>
-                    <p id="tel-pres" class="text-[9px] text-rose-500 mt-0.5 font-medium">เบอร์โทรศัพท์</p>
+                <div onclick="openEdit('ประธานเครือข่าย','img-pres','name-pres','tel-pres')" class="card-pres p-4 rounded-2xl w-48 text-center shadow-sm cursor-pointer">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden shadow-sm"><img id="img-pres" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-pres" class="font-bold text-[10px] text-rose-900 leading-tight">ชื่อประธานเครือข่าย</p>
+                    <p id="tel-pres" class="text-[9px] text-rose-500 font-medium">เบอร์โทรศัพท์</p>
                 </div>
             </div>
-            <div class="line-v"></div>
 
-            <div class="grid grid-cols-3 gap-2 px-2">
-                <div data-id="กรรมการ1" onclick="openEdit('กรรมการ','img-g6','name-g6','tel-g6')" class="card-member p-2.5 rounded-xl text-center shadow-sm cursor-pointer editable-card">
-                    <div class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile icon-human overflow-hidden">
-                        <img id="img-g6" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-g6" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
-                    <p id="tel-g6" class="text-[7px] text-emerald-600">เบอร์โทรศัพท์</p>
+            <div class="grid grid-cols-3 gap-6 px-6">
+                <div onclick="openEdit('กรรมการ','img-g6','name-g6','tel-g6')" class="card-member p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-g6" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-g6" class="text-[9px] font-bold text-emerald-900">กรรมการ</p>
+                    <p id="tel-g6" class="text-[8px] text-emerald-600">เบอร์โทรศัพท์</p>
                 </div>
-                <div data-id="กรรมการ2" onclick="openEdit('กรรมการ','img-g7','name-g7','tel-g7')" class="card-member p-2.5 rounded-xl text-center shadow-sm cursor-pointer editable-card">
-                    <div class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile icon-human overflow-hidden">
-                        <img id="img-g7" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-g7" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
-                    <p id="tel-g7" class="text-[7px] text-emerald-600">เบอร์โทรศัพท์</p>
+                <div onclick="openEdit('กรรมการ','img-g7','name-g7','tel-g7')" class="card-member p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-g7" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-g7" class="text-[9px] font-bold text-emerald-900">กรรมการ</p>
+                    <p id="tel-g7" class="text-[8px] text-emerald-600">เบอร์โทรศัพท์</p>
                 </div>
-                <div data-id="กรรมการ3" onclick="openEdit('กรรมการ','img-g8','name-g8','tel-g8')" class="card-member p-2.5 rounded-xl text-center shadow-sm cursor-pointer editable-card">
-                    <div class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile icon-human overflow-hidden">
-                        <img id="img-g8" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-g8" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
-                    <p id="tel-g8" class="text-[7px] text-emerald-600">เบอร์โทรศัพท์</p>
+                <div onclick="openEdit('กรรมการ','img-g8','name-g8','tel-g8')" class="card-member p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-g8" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-g8" class="text-[9px] font-bold text-emerald-900">กรรมการ</p>
+                    <p id="tel-g8" class="text-[8px] text-emerald-600">เบอร์โทรศัพท์</p>
                 </div>
             </div>
-            <p style="margin-bottom: 10px;"</p>
-
-            <div class="grid grid-cols-2 gap-2 px-12 mt-">
-                <div data-id="กรรมการ4" onclick="openEdit('กรรมการ','img-g9','name-g9','tel-g9')" class="card-member p-2.5 rounded-xl text-center shadow-sm cursor-pointer editable-card">
-                    <div class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile icon-human overflow-hidden">
-                        <img id="img-g9" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-g9" class="text-[8px] font-bold text-emerald-900 leading-tight">กรรมการ</p>
-                    <p id="tel-g9" class="text-[7px] text-emerald-600">เบอร์โทรศัพท์</p>
+            
+            <div class="grid grid-cols-2 gap-16 px-44">
+                <div onclick="openEdit('กรรมการ','img-g9','name-g9','tel-g9')" class="card-member p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-g9" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-g9" class="text-[9px] font-bold text-emerald-900">กรรมการ</p>
+                    <p id="tel-g9" class="text-[8px] text-emerald-600">เบอร์โทรศัพท์</p>
                 </div>
-                <div data-id="เลขานุการ" onclick="openEdit('เลขานุการ','img-sec10','name-sec10','tel-sec10')" class="card-member p-2.5 rounded-xl text-center shadow-sm cursor-pointer editable-card">
-                    <div class="w-[70px] h-[70px] rounded-full mx-auto mb-1 img-profile icon-human overflow-hidden">
-                        <img id="img-sec10" src="" class="w-full h-full object-cover hidden">
-                    </div>
-                    <p id="name-sec10" class="text-[8px] font-bold text-emerald-900 leading-tight">เลขานุการ</p>
-                    <p id="tel-sec10" class="text-[7px] text-emerald-600">เบอร์โทรศัพท์</p>
+                <div onclick="openEdit('เลขานุการ','img-sec10','name-sec10','tel-sec10')" class="card-member p-4 rounded-2xl text-center cursor-pointer shadow-sm">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-2 img-profile icon-human overflow-hidden"><img id="img-sec10" src="" class="w-full h-full object-cover hidden"></div>
+                    <p id="name-sec10" class="text-[9px] font-bold text-emerald-900">เลขานุการ</p>
+                    <p id="tel-sec10" class="text-[8px] text-emerald-600">เบอร์โทรศัพท์</p>
                 </div>
             </div>
         </div>
 
-        <footer class="mt-auto pt-6 pb-2 text-center border-t border-slate-50">
-            <p class="text-[8px] text-slate-400 font-medium tracking-widest uppercase">@2026 | งานกิจการนักเรียน โรงเรียนชลบุรี "สุขบท"</p>
+        <footer class="mt-4 pt-4 border-t border-slate-100 text-center">
+            <p class="text-[9px] text-slate-300 font-medium tracking-[0.3em] uppercase">งานกิจการนักเรียน โรงเรียนชลบุรี "สุขบท"</p>
         </footer>
     </main>
 
-    <div id="modal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-end sm:items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl">
-            <h3 id="m-title" class="font-bold text-center text-slate-800 mb-6 text-lg">แก้ไขข้อมูล</h3>
-            <div onclick="document.getElementById('f-input').click()" class="relative w-28 h-28 mx-auto mb-6 cursor-pointer overflow-hidden rounded-full shadow-lg border-4 border-blue-50">
-                <div id="m-preview-container" class="w-full h-full overflow-hidden icon-human">
+    <div id="modal" class="fixed inset-0 bg-black/70 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100">
+            <h3 id="m-title" class="font-bold text-center text-slate-800 mb-4">แก้ไขข้อมูล</h3>
+            <div onclick="document.getElementById('f-input').click()" class="relative w-24 h-24 mx-auto mb-4 cursor-pointer rounded-full shadow-lg border-2 border-blue-50 overflow-hidden">
+                <div id="m-preview-container" class="w-full h-full icon-human bg-slate-50">
                     <img id="m-preview" src="" class="w-full h-full object-cover hidden">
                 </div>
-                <div class="absolute bottom-1 right-1 bg-blue-600 text-white p-2 rounded-full border-2 border-white text-[10px] shadow-md">📸</div>
+                <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <span class="text-white text-[10px]">เปลี่ยนรูป</span>
+                </div>
             </div>
             <input type="file" id="f-input" class="hidden" accept="image/*" onchange="previewImg(this)">
-            <input type="text" id="i-name" class="w-full bg-slate-50 p-4 rounded-2xl mb-3 outline-none text-sm font-medium" placeholder="ชื่อ-นามสกุล">
-            <input type="text" id="i-tel" class="w-full bg-slate-50 p-4 rounded-2xl mb-8 outline-none text-sm font-medium" placeholder="เบอร์โทรศัพท์ / ตำแหน่งเสริม">
-            <div class="flex gap-3">
-                <button onclick="saveData()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">ยืนยัน</button>
-                <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold">ยกเลิก</button>
+            <input type="text" id="i-name" class="w-full bg-slate-50 p-3 rounded-xl mb-2 border border-slate-200 outline-none text-sm" placeholder="ระบุชื่อ-นามสกุล">
+            <input type="text" id="i-tel" class="w-full bg-slate-50 p-3 rounded-xl mb-6 border border-slate-200 outline-none text-sm" placeholder="เบอร์โทรศัพท์">
+            <div class="flex gap-2">
+                <button onclick="saveData()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg shadow-blue-200">ตกลง</button>
+                <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-400 py-3 rounded-xl font-bold">ยกเลิก</button>
             </div>
         </div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwJKu20zzROn_gfKS0NrJP6yWWHafbd0f0kqHQ8AOLLwfTA_WrIO_F54i9s2mGkt8nJLg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyXTYdd_x6juI4tMF1Im7HsaRNtrWbnRhkYD12JGUCaMgxI72x5p0rBaTBY__cnEglLww/exec"; 
         let currentTarget = {};
 
         function toggleSidebar() {
@@ -200,8 +193,7 @@
         function updateRooms() {
             const lv = document.getElementById('level');
             if(!lv.options.length) {
-                const grades = ['มัธยมศึกษาปีที่ 1','มัธยมศึกษาปีที่ 2','มัธยมศึกษาปีที่ 3','มัธยมศึกษาปีที่ 4','มัธยมศึกษาปีที่ 5','มัธยมศึกษาปีที่ 6'];
-                grades.forEach((t) => lv.add(new Option(t, t)));
+                ['มัธยมศึกษาปีที่ 1','มัธยมศึกษาปีที่ 2','มัธยมศึกษาปีที่ 3','มัธยมศึกษาปีที่ 4','มัธยมศึกษาปีที่ 5','มัธยมศึกษาปีที่ 6'].forEach(t => lv.add(new Option(t, t)));
             }
             const r = document.getElementById('room');
             const count = (lv.value.includes('1') || lv.value.includes('2') || lv.value.includes('3')) ? 15 : 11;
@@ -211,27 +203,24 @@
         }
 
         function setRoomText() {
-            const fullText = `${document.getElementById('level').value} ห้อง ${document.getElementById('room').value}`;
-            document.getElementById('navRoomText').innerText = fullText;
-            document.getElementById('displayRoom').innerText = fullText;
+            const full = `${document.getElementById('level').value} ห้อง ${document.getElementById('room').value}`;
+            document.getElementById('navRoomText').innerText = full;
+            document.getElementById('displayRoom').innerText = full;
         }
 
         function openEdit(title, imgId, nameId, telId) {
             currentTarget = { imgId, nameId, telId };
             document.getElementById('m-title').innerText = title;
             const realImg = document.getElementById(imgId);
-            const previewImg = document.getElementById('m-preview');
-            const previewContainer = document.getElementById('m-preview-container');
-            
-            if(realImg && realImg.src && !realImg.classList.contains('hidden')) {
-                previewImg.src = realImg.src;
-                previewImg.classList.remove('hidden');
-                previewContainer.classList.remove('icon-human');
+            const p = document.getElementById('m-preview');
+            const pc = document.getElementById('m-preview-container');
+
+            if(realImg.src && !realImg.classList.contains('hidden')) {
+                p.src = realImg.src; p.classList.remove('hidden'); pc.classList.remove('icon-human');
             } else {
-                previewImg.src = ''; previewImg.classList.add('hidden');
-                previewContainer.classList.add('icon-human');
+                p.src = ''; p.classList.add('hidden'); pc.classList.add('icon-human');
             }
-            document.getElementById('i-name').value = document.getElementById(nameId).innerText.includes('ระบุ') ? '' : document.getElementById(nameId).innerText;
+            document.getElementById('i-name').value = document.getElementById(nameId).innerText.includes('ชื่อ') ? '' : document.getElementById(nameId).innerText;
             document.getElementById('i-tel').value = document.getElementById(telId).innerText.includes('เบอร์') ? '' : document.getElementById(telId).innerText;
             document.getElementById('modal').classList.remove('hidden');
         }
@@ -240,93 +229,69 @@
 
         function previewImg(input) {
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
+                const r = new FileReader();
+                r.onload = e => {
                     const p = document.getElementById('m-preview');
-                    p.src = e.target.result;
-                    p.classList.remove('hidden');
+                    p.src = e.target.result; p.classList.remove('hidden');
                     document.getElementById('m-preview-container').classList.remove('icon-human');
                 };
-                reader.readAsDataURL(input.files[0]);
+                r.readAsDataURL(input.files[0]);
             }
         }
 
         function saveData() {
             const realImg = document.getElementById(currentTarget.imgId);
-            const previewImg = document.getElementById('m-preview');
-            if(!previewImg.classList.contains('hidden')) {
-                realImg.src = previewImg.src;
-                realImg.classList.remove('hidden');
+            const p = document.getElementById('m-preview');
+            if(!p.classList.contains('hidden')) {
+                realImg.src = p.src; realImg.classList.remove('hidden');
                 realImg.parentElement.classList.remove('icon-human');
             }
-            const name = document.getElementById('i-name').value;
-            const tel = document.getElementById('i-tel').value;
-            if(name) document.getElementById(currentTarget.nameId).innerText = name;
-            if(tel) document.getElementById(currentTarget.telId).innerText = tel;
+            document.getElementById(currentTarget.nameId).innerText = document.getElementById('i-name').value || 'ระบุชื่อ';
+            document.getElementById(currentTarget.telId).innerText = document.getElementById('i-tel').value || 'เบอร์โทรศัพท์';
             closeModal();
         }
 
-        // --- ระบบบันทึกข้อมูลลง Google Sheet ---
-        async function saveAllToCloud() {
-            const btn = event.target;
-            const originalText = btn.innerText;
+        async function exportToJpgCloud() {
+            const btn = event.currentTarget;
+            const area = document.getElementById('capture-area');
+            const roomName = document.getElementById('navRoomText').innerText;
             
+            toggleSidebar(); // ปิด Sidebar ระหว่างทำงาน
+
             try {
-                btn.innerText = "กำลังบันทึก... ⏳";
                 btn.disabled = true;
+                btn.innerText = "กำลังสร้างไฟล์ JPG... ⏳";
 
-                const payload = {
-                    room: document.getElementById('navRoomText').innerText,
-                    members: []
-                };
-
-                document.querySelectorAll('.editable-card').forEach(card => {
-                    const id = card.getAttribute('data-id');
-                    const img = card.querySelector('img');
-                    const name = card.querySelector('[id^="name-"]').innerText;
-                    const contact = card.querySelector('[id^="tel-"], [id^="pos-"]').innerText;
-
-                    payload.members.push({
-                        role: id,
-                        name: name,
-                        contact: contact,
-                        image: (img && !img.classList.contains('hidden')) ? img.src : ""
-                    });
+                const canvas = await html2canvas(area, {
+                    scale: 3, 
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    width: 794,
+                    height: 1123,
+                    scrollX: 0,
+                    scrollY: -window.scrollY
                 });
+
+                const jpgBase64 = canvas.toDataURL("image/jpeg", 0.95);
+
+                btn.innerText = "กำลังอัปโหลดไปที่ Drive... 🚀";
 
                 await fetch(WEB_APP_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    cache: "no-cache",
+                    method: "POST", mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ room: roomName, image: jpgBase64 })
                 });
 
-                alert("✅ บันทึกข้อมูลไปยัง Google Sheet และ Drive เรียบร้อยแล้ว!");
-            } catch (error) {
-                console.error(error);
-                alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ");
+                alert("✅ บันทึกรูปภาพห้อง " + roomName + " ลงใน Drive สำเร็จแล้ว!");
+            } catch (e) {
+                alert("❌ ผิดพลาด: " + e.message);
             } finally {
-                btn.innerText = originalText;
                 btn.disabled = false;
+                btn.innerText = "🖼️ บันทึกข้อมูล (JPG) ลง Drive";
             }
         }
 
-        function exportPDF() {
-            const element = document.getElementById('capture-area');
-            html2pdf().set({
-                margin: 0,
-                filename: `เครือข่ายผู้ปกครอง_${document.getElementById('navRoomText').innerText}.pdf`,
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).from(element).save();
-        }
-
-        function resetForm() { 
-            if(confirm("เริ่มใหม่ใช่หรือไม่?")) location.reload(); 
-        }
-
+        function resetForm() { if(confirm("ต้องการล้างข้อมูลทั้งหมดเพื่อเริ่มใหม่ใช่หรือไม่?")) location.reload(); }
         window.onload = updateRooms;
     </script>
 </body>
